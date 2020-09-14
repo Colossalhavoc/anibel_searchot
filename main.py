@@ -148,7 +148,7 @@ async def callback(callback_query: CallbackQuery):
         reply_markup = InlineKeyboardMarkup(1)
         reply_markup.add(InlineKeyboardButton(
             text="Глядзець на Anibel.net",
-            url=f"https://anibel.net/{anime['slug']}"
+            url=f"https://anibel.net/anime/{anime['slug']}"
         ))
         reply_markup.add(InlineKeyboardButton(
             text="Глядзець анлайн",
