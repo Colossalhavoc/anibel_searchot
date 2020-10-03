@@ -2,7 +2,7 @@
 
 Telegram inline bot, that's can help you send any anime from anibel to your chat
 
-## Please, don't use it if you don't know how to solve possible problems. I made it for me and not sure I won't abandon the project. Better use [FTG](https://friendly-telegram.gitlab.io/) or [JoHn-111/Userbot](https://github.com/JoHn-111/Userbot)
+## Please, don't use it if you don't know how to solve possible problems. I made it for me and not sure I won't abandon the project. 
 
 # How to setup
 
