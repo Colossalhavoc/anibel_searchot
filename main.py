@@ -6,16 +6,19 @@ from aiogram import Bot, Dispatcher, executor
 from aiogram.types import InlineQuery, InputTextMessageContent, InlineQueryResultArticle, InlineKeyboardMarkup,\
     InlineKeyboardButton, CallbackQuery
 import requests as rq
+from redis import Redis
 
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(environ.get('BOT_TOKEN'))
 dp = Dispatcher(bot)
 
+r = Redis(host='localhost', port=6379, db=0, password=None)
+
 
 def get_title_info(slug):
     response = rq.post('https://anibel-be.herokuapp.com/graphql',
-                       json={'query': '''{anime(slug:"''' + slug + '''"){slug,title{be,en},
+                       json={'query': '''{anime(slug:"''' + slug + '''"){slug,id,title{be,en},
                                description{be},poster,year,duraction{start,end},donation,download,genres,rating}}'''
                              })
     if response.status_code != 200:
@@ -30,7 +33,7 @@ def get_title_info(slug):
                    f"Рэйтынг на Anibel: {anime['rating']}\n"
     return {
         'message_text': message_text,
-        'slug': slug,
+        'slug': anime['id'],
         'download': anime['download'],
         'donation': anime['donation'],
         'title': {
@@ -49,15 +52,19 @@ async def inline(inline_query: InlineQuery):
     if len(inline_query.query) < 3:
         return
     text = inline_query.query
+    logging.info('GOT INLINE QUERY: ' + text)
     response = rq.post('https://anibel-be.herokuapp.com/graphql',
-                       json={'query': '''{search(query:"''' + text + '''"){url}}'''})
+                       json={'query': '''{search(query:"''' + text + '''", limit:5){url}}'''})
     if response.status_code != 200:
+        logging.warning('API RETURNED STATUS CODE ' + response.status_code)
         return
     data_json = json.loads(response.content)
+    logging.info('API RETURNED: ' + str(data_json))
     results = list()
     for search_result in data_json['data']['search']:
         anime = get_title_info(search_result['url'])
-        result_id: str = md5(text.encode()).hexdigest()
+        logging.info(f"GOT INFO OF TITLE {search_result['url']}: " + str(anime))
+        result_id: str = md5(search_result['url'].encode()).hexdigest()
         input_content = InputTextMessageContent(
             message_text=anime['message_text'],
             parse_mode='html'
@@ -93,7 +100,6 @@ async def inline(inline_query: InlineQuery):
 
 
 @dp.callback_query_handler()
-# @dp.throttled(rate=2)
 async def callback(callback_query: CallbackQuery):
     if callback_query.data.split('__')[0] not in ['sub', 'dub', 'main']:
         reply_markup = InlineKeyboardMarkup(2)
