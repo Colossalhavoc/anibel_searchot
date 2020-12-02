@@ -1,5 +1,7 @@
 # anibel_searchbot
 
+## Archived until the API is developed and the site is updated
+
 Telegram inline bot, that's can help you send any anime from anibel to your chat
 
 ## Please, don't use it if you don't know how to solve possible problems. I made it for me and not sure I won't abandon the project. 
